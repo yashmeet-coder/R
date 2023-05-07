@@ -1,0 +1,271 @@
+#Question 1
+# a
+numvec <- c(3, 4, 5, 6, 7)
+numvec
+charvec <- c("u", "v", "w", "x", "y")
+charvec
+intvec <- c(1L, 2L, 3L, 4L, 5L)
+intvec
+class(numvec)
+class(charvec)
+class(intvec)
+
+# b
+x <- 1:5
+y <- 1:10
+2*x + y -3
+
+# c
+nOdd <- seq.int(101, 500, 2)
+nOdd
+
+# d
+mean(nOdd)
+sd(nOdd)
+
+# e
+lst <- list(c(1:7), array(1:10, c(5,2)), list("x", "y", "z"))
+lst
+
+# f
+M1 <- matrix(1:10, 2, 5)
+M2 <- matrix(1:10, 5, 2)
+mult <- M1 %*% M2
+mult
+
+# g
+rowMeans(mult)
+colMeans(mult)
+
+# h
+dim(M1) <- c(4,3)
+rbind(M1, M2)
+cbind(M1, M2)
+
+# i
+Mat1 <- matrix(10:21, c(3,4))
+Mat1
+Mat1 <- mat1[-1,]
+Mat1
+
+#Question 2
+# a
+str(airquality)
+
+# b
+nrow(airquality) # No. of observations
+ncol(airquality) # No. of variables
+
+# c
+clean_airquality <- na.omit(airquality)
+nrow(clean_airquality)
+
+# d
+subset(airquality, Temp>70 & Temp<80)
+
+# e
+nrow(subset(airquality, Month == 5))
+
+# f
+head(airquality, 10)
+
+# g
+summary(airquality$Wind)
+
+# h
+airquality[order(airquality$Temp, decreasing = TRUE),]
+
+# i
+aq <- airquality
+aq[154,] <- list(25, 225, 15, 75, 89)
+str(aq)
+
+
+#Question 3
+# a
+td <- data.frame(read.csv("toy_dataset.csv"))
+str(td)
+
+# b
+attach(td)
+
+# c
+nrow(subset(td, City == "New York City"))
+
+# d
+tail(td[order(td$Income),])
+
+# e
+nrow(subset(td, Income > mean(Income)))
+
+# f
+max(subset(td, Gender == "Female")$Income)
+
+# g
+td[sample(1:150000, 10),]
+
+# h
+detach(td)
+
+
+#Question 4
+remove.packages("rlang")
+install.packages("rlang")
+library(rlang)
+install.packages("DBI")
+library(DBI)
+install.packages("RSQLite")
+library(RSQLite)
+install.packages("dplyr")
+library(dplyr)
+
+# a)
+q4db <- dbConnect(SQLite(),"Q4.sqlite")
+dbListTables(q4db)
+dbGetQuery(q4db, "create table student(roll int primary key,
+name varchar2(20), course varchar2(20))")
+dbListTables(q4db)
+
+# b)
+dbGetQuery(q4db, "insert into student values(1, 'Shyaamal', 'BScCS') ")
+dbGetQuery(q4db, "insert into student values(2, 'Chinmay', 'BScCS') ")
+dbGetQuery(q4db, "insert into student values(3, 'Pankaj', 'BScCS') ")
+dbGetQuery(q4db, "insert into student values(4, 'Ayush', 'BScCS') ")
+dbGetQuery(q4db, "insert into student values(5, 'Rishabh', 'BScCS') ")
+
+# c)
+dbGetQuery(q4db, "select * from student")
+
+# d)
+dbGetQuery(q4db, "delete from student")
+
+# e)
+dbGetQuery(q4db, "drop table student")
+dbDisconnect(q4db)
+
+
+#Question 5
+setwd("D:/R")
+rain_data <- read.csv("rainfall.csv")
+View(rain_data)
+head(rain_data$Rainfall,10)
+subset(rain_data,rain_data$Rainfall>20)
+mean(rain_data[rain_data$Rainfall>4,"Rainfall"])
+subset(rain_data,rain_data$Rainfall==0|rain_data$Rainfall==0.6)
+
+
+#Question 6
+# a
+iris
+summary(iris$Sepal.Length)
+summary(iris$Sepal.Width)
+summary(iris$Petal.Length)
+summary(iris$Petal.Width)
+summary(iris$Species)
+
+# b
+with(subset(iris, Species == "setosa"), plot(Sepal.Length, Sepal.Width))
+
+# c
+with(subset(iris, Species == "setosa"), plot(Sepal.Length, Sepal.Widthxlab = "Sepal Length", ylab =
+"Sepal Width", main = "Setosa"))
+
+# d
+lattice::histogram(iris$Petal.Length)
+
+# e
+with(subset(iris, Species == "versicolor"), boxplot(Petal.Width))
+
+
+#Question 7
+getwd()
+setwd("C:/Users/hp/Personal/New folder (2)/R/R_Practicals")
+alc <- read.delim("Alcohol.txt")
+alc
+install.packages("sqldf")
+library("sqldf")
+query1<-"select * from (select Year,Country ,max(Beer) from alc group by Year)
+as a
+inner join (select Year,Country,min(Wine) from alc group by Year) as b on
+a.Year=b.Year"
+sqldf(query1)
+query2<-"select Country,(sum(Beer)+sum(Wine)+sum(Spirit))/3 as Average from
+alc group by Country"
+sqldf(query2)
+query3<-"select * from alc where Country='NewZealand' and year=(select Year
+from alc where Country='NewZealand' and Spirit>(select avg(Spirit) from alc
+where Country='NewZealand'))"
+sqldf(query3)
+query4<-"select Year,avg(Beer),avg(Spirit),avg(Wine) from alc group by Year"
+sqldf(query4)
+sub_Aus<-subset(alc,alc$Country=="Australia")
+sub_New<-subset(alc,alc$Country=="NewZealand")
+x1<-c("Beer"=mean(sub_Aus$Beer),"Wine"=mean(sub_Aus$Wine),"Spirit"=mean(sub_Au
+s$Spirit))
+x2<-c("Beer"=mean(sub_New$Beer),"Wine"=mean(sub_New$Wine),"Spirit"=mean(sub_Ne
+w$Spirit))
+hist(x1, main = "Australia Alcohol Consumption")
+hist(x2, main = "New Zealand Alcohol Consumption")
+
+
+
+#Question 8
+library(usethis)
+library(devtools)
+library(roxygen2)
+getwd()
+nMean <- function(x){
+len <- length(x)
+sm <- sum(x)
+sm/len
+}
+nMean(1:5)
+nMed <- function(x){
+x <- sort(x)
+if((length(x) %% 2) == 0){
+return((x[length(x)/2] + x[length(x)/2 + 1]) / 2)
+}
+else{
+return(x[(length(x)/2) + 0.5])
+}
+}
+nMed(1:9)
+nVar <- function(x){
+var(x)
+}
+nSD <- function(x){
+sd(x)
+}
+nHist <- function(x){
+hist(x)
+}
+package.skeleton("pkg8", c("nMean", "nMed", "nVar", "nSD", "nHist")) # used
+for creating skeleton for a new source package
+roxygenize("pkg8")
+rm(list = c("nHist", "nMean", "nMed", "nSD", "nVar"))
+check("pkg8")
+build("pkg8")
+release("pkg8")
+
+
+
+#Question 9
+library(RMySQL)
+library("RSQLite")
+library("DBI")
+con <- dbConnect(SQLite(),"Q9.sqlite")
+user_mood <- readline(prompt = "Enter your mood: ")
+# paste after converting into character
+query <- paste0("Dhoom machale, online_link_play_song FROM songs_table WHERE mood = '", user_mood, "IPL")
+results <- dbGetQuery(con, query)
+# Display the list of songs for the user's mood
+if(nrow(results) == 0) {
+cat("Sorry, no songs found for your mood.")
+} else {
+cat("Songs for your mood:\n")
+for(i in 1:nrow(results)) {
+cat(paste0(i, ". ", results$song_name[i], "\n"))
+}
+}
+# Close the database connection
+dbDisconnect(con)
